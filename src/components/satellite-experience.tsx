@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import {
   ArrowDown,
   ArrowRight,
@@ -10,6 +11,7 @@ import {
   Play,
   RotateCcw,
   Satellite,
+  Sparkles,
   Truck,
   Warehouse,
   X,
