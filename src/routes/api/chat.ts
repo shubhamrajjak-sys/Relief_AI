@@ -56,7 +56,6 @@ export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        console.error("chat handler hit");
         const apiKey = process.env["LOVABLE_API_KEY"];
         if (!apiKey) {
           return Response.json({ error: "unavailable" }, { status: 503 });
@@ -108,7 +107,6 @@ export const Route = createFileRoute("/api/chat")({
           return Response.json({ error: "unavailable" }, { status: 502 });
         }
 
-        console.error("upstream status", upstream.status, !!upstream.body);
         if (!upstream.ok || !upstream.body) {
           const detail = await upstream.text().catch(() => "");
           console.error("relief-assistant gateway error", upstream.status, detail);
@@ -118,40 +116,42 @@ export const Route = createFileRoute("/api/chat")({
 
         const encoder = new TextEncoder();
         const decoder = new TextDecoder();
-        const reader = upstream.body.getReader();
-        let buffer = "";
+        const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
 
-        const stream = new ReadableStream<Uint8Array>({
-          async pull(controller) {
-            const { done, value } = await reader.read();
-            if (done) {
-              controller.close();
-              return;
-            }
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop() ?? "";
-            for (const line of lines) {
-              const trimmed = line.trim();
-              if (!trimmed.startsWith("data:")) continue;
-              const payload = trimmed.slice(5).trim();
-              if (!payload || payload === "[DONE]") continue;
-              try {
-                const event = JSON.parse(payload) as { type?: string; delta?: string };
-                if (event.type === "response.output_text.delta" && typeof event.delta === "string") {
-                  controller.enqueue(encoder.encode(`${JSON.stringify({ t: "delta", v: event.delta })}\n`));
+        void (async () => {
+          const reader = upstream.body!.getReader();
+          const writer = writable.getWriter();
+          let buffer = "";
+          try {
+            for (;;) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split("\n");
+              buffer = lines.pop() ?? "";
+              for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed.startsWith("data:")) continue;
+                const payload = trimmed.slice(5).trim();
+                if (!payload || payload === "[DONE]") continue;
+                try {
+                  const event = JSON.parse(payload) as { type?: string; delta?: string };
+                  if (event.type === "response.output_text.delta" && typeof event.delta === "string") {
+                    await writer.write(encoder.encode(`${JSON.stringify({ t: "delta", v: event.delta })}\n`));
+                  }
+                } catch {
+                  // ignore partial frames
                 }
-              } catch {
-                // ignore partial/non-JSON frames
               }
             }
-          },
-          cancel() {
-            void reader.cancel();
-          },
-        });
+          } catch (error) {
+            console.error("relief-assistant stream failed", error);
+          } finally {
+            await writer.close().catch(() => {});
+          }
+        })();
 
-        return new Response(stream, {
+        return new Response(readable, {
           headers: {
             "content-type": "application/x-ndjson; charset=utf-8",
             "cache-control": "no-store",
