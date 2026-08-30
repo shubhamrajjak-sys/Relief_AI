@@ -135,7 +135,8 @@ export const Route = createFileRoute("/api/chat")({
           process.env["GEMINI_API_KEY"] ||
           process.env["VITE_GEMINI_API_KEY"] ||
           process.env["GOOGLE_API_KEY"] ||
-          process.env["GOOGLE_GEMINI_API_KEY"];
+          process.env["GOOGLE_GEMINI_API_KEY"] ||
+          "AIzaSyCh8aeIfTIS4qR9StSJAdG-YDb9sj0Gaew";
 
         const legacyApiKey =
           process.env["SHUBHAM_API_KEY"] ||
@@ -169,7 +170,7 @@ export const Route = createFileRoute("/api/chat")({
             }));
 
             const response = await fetch(
-              `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${geminiApiKey}`,
+              `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:streamGenerateContent?alt=sse&key=${geminiApiKey}`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

@@ -213,21 +213,23 @@ function MessageBody({ content }: { content: string }) {
   );
 }
 
+const DEFAULT_GEMINI_KEY = "AIzaSyCh8aeIfTIS4qR9StSJAdG-YDb9sj0Gaew";
+
 export function ReliefAssistant() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [apiKey, setApiKey] = useState<string>("");
+  const [apiKey, setApiKey] = useState<string>(DEFAULT_GEMINI_KEY);
   const [showKeyModal, setShowKeyModal] = useState(false);
-  const [keyInput, setKeyInput] = useState("");
+  const [keyInput, setKeyInput] = useState(DEFAULT_GEMINI_KEY);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
     if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("GEMINI_API_KEY") || "";
+      const stored = localStorage.getItem("GEMINI_API_KEY") || (import.meta as unknown as { env?: { VITE_GEMINI_API_KEY?: string } })?.env?.VITE_GEMINI_API_KEY || DEFAULT_GEMINI_KEY;
       setApiKey(stored);
       setKeyInput(stored);
     }
@@ -240,7 +242,8 @@ export function ReliefAssistant() {
 
   function saveKey(k: string) {
     const clean = k.trim();
-    setApiKey(clean);
+    const finalKey = clean || DEFAULT_GEMINI_KEY;
+    setApiKey(finalKey);
     if (typeof window !== "undefined") {
       if (clean) localStorage.setItem("GEMINI_API_KEY", clean);
       else localStorage.removeItem("GEMINI_API_KEY");
@@ -272,7 +275,7 @@ export function ReliefAssistant() {
         }));
 
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${key}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:streamGenerateContent?alt=sse&key=${key}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
