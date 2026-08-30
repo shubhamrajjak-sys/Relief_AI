@@ -117,6 +117,7 @@ export const Route = createFileRoute("/api/chat")({
         const encoder = new TextEncoder();
         const decoder = new TextDecoder();
         const reader = upstream.body.getReader();
+        let buffer = "";
 
         const stream = new ReadableStream<Uint8Array>({
           async pull(controller) {
@@ -125,8 +126,10 @@ export const Route = createFileRoute("/api/chat")({
               controller.close();
               return;
             }
-            const chunk = decoder.decode(value, { stream: true });
-            for (const line of chunk.split("\n")) {
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() ?? "";
+            for (const line of lines) {
               const trimmed = line.trim();
               if (!trimmed.startsWith("data:")) continue;
               const payload = trimmed.slice(5).trim();
