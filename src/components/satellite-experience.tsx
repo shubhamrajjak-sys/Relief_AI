@@ -231,7 +231,7 @@ export function SatelliteExperience() {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          (entry.target as HTMLElement).classList.add("is-revealed");
+          (entry.target as HTMLElement).dataset.revealed = "true";
           observer.unobserve(entry.target);
         }
       });
