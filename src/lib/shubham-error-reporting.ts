@@ -1,26 +1,32 @@
-type ShubhamErrorOptions = {
+type ReliefAIErrorOptions = {
   mechanism?: "manual" | "onerror" | "unhandledrejection" | "react_error_boundary";
   handled?: boolean;
   severity?: "error" | "warning" | "info";
 };
 
-type ShubhamEvents = {
+type ReliefAIEvents = {
   captureException?: (
     error: unknown,
     context?: Record<string, unknown>,
-    options?: ShubhamErrorOptions,
+    options?: ReliefAIErrorOptions,
   ) => void;
 };
 
 declare global {
   interface Window {
-    __shubhamEvents?: ShubhamEvents;
+    __reliefAIEvents?: ReliefAIEvents;
+    __reliefAIReportRuntimeError?: (payload: {
+      message: string;
+      stack?: string;
+      filename?: string;
+    }) => void;
+    __shubhamEvents?: ReliefAIEvents;
     __shubhamReportRuntimeError?: (payload: {
       message: string;
       stack?: string;
       filename?: string;
     }) => void;
-    __lovableEvents?: ShubhamEvents;
+    __lovableEvents?: ReliefAIEvents;
     __lovableReportRuntimeError?: (payload: {
       message: string;
       stack?: string;
@@ -29,9 +35,9 @@ declare global {
   }
 }
 
-export function reportShubhamError(error: unknown, context: Record<string, unknown> = {}) {
+export function reportReliefAIError(error: unknown, context: Record<string, unknown> = {}) {
   if (typeof window === "undefined") return;
-  (window.__shubhamEvents ?? window.__lovableEvents)?.captureException?.(
+  (window.__reliefAIEvents ?? window.__shubhamEvents ?? window.__lovableEvents)?.captureException?.(
     error,
     {
       source: "react_error_boundary",
@@ -52,12 +58,14 @@ export function reportShubhamError(error: unknown, context: Record<string, unkno
         ? error.message
         : String(error);
   const stack = error instanceof Error ? error.stack : undefined;
-  (window.__shubhamReportRuntimeError ?? window.__lovableReportRuntimeError)?.({
+  (window.__reliefAIReportRuntimeError ?? window.__shubhamReportRuntimeError ?? window.__lovableReportRuntimeError)?.({
     message,
     ...(stack !== undefined && { stack }),
     filename: window.location.pathname,
   });
 }
 
-export const reportLovableError = reportShubhamError;
+export const reportShubhamError = reportReliefAIError;
+export const reportLovableError = reportReliefAIError;
+
 

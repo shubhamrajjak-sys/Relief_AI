@@ -10,7 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportShubhamError } from "../lib/shubham-error-reporting";
+import { reportReliefAIError } from "../lib/reliefai-error-reporting";
 
 function NotFoundComponent() {
   return (
@@ -38,7 +38,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportShubhamError(error, { boundary: "tanstack_root_error_component" });
+    reportReliefAIError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
   return (
@@ -79,12 +79,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "RELIEF.AI" },
       { name: "description", content: "Satellite flood monitoring for safer emergency logistics routing." },
-      { name: "author", content: "Shubham" },
+      { name: "author", content: "ReliefAI" },
       { property: "og:title", content: "RELIEF.AI" },
       { property: "og:description", content: "Compare flood change from orbit and reroute relief through accessible roads." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@shubham" },
+      { name: "twitter:site", content: "@ReliefAI" },
     ],
     links: [
       {

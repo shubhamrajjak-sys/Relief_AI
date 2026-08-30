@@ -342,7 +342,7 @@ export function SatelliteExperience() {
       <footer className="site-footer">
         <div className="footer-left">
           <a className="wordmark" href="#top">RELIEF.AI</a>
-          <span>Satellite flood monitoring & emergency routing · Built by <a href="https://github.com/shubhamrajjak-sys/Relief_AI" target="_blank" rel="noreferrer" className="underline">Shubham</a></span>
+          <span>Satellite flood monitoring & emergency routing · Built by <a href="https://github.com/shubhamrajjak-sys/Relief_AI" target="_blank" rel="noreferrer" className="underline">ReliefAI</a></span>
         </div>
         <div className="footer-links">
           <a href="https://relief-ai-nu.vercel.app/" target="_blank" rel="noreferrer">Live App</a>

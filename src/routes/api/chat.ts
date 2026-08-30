@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
-const SYSTEM_PROMPT = `You are Relief.AI, an AI Emergency Relief & Route Intelligence Assistant developed by Shubham.
+const SYSTEM_PROMPT = `You are Relief.AI, an AI Emergency Relief & Route Intelligence Assistant developed by ReliefAI.
 
 Your purpose is to help emergency logistics teams understand disaster-affected road networks and make safer relief-routing decisions.
 
@@ -97,8 +97,8 @@ Satellite imagery confirms that conventional pre-disaster routes cross high-risk
 - **Status:** Clearance verified via satellite change detection. Safe for emergency relief convoys.`;
   }
 
-  if (q.includes("who") || q.includes("author") || q.includes("creator") || q.includes("shubham") || q.includes("project")) {
-    return `**RELIEF.AI** is created by **Shubham** to solve "The Paralyzed Relief Supply Chain" during disasters.
+  if (q.includes("who") || q.includes("author") || q.includes("creator") || q.includes("reliefai") || q.includes("relief") || q.includes("shubham") || q.includes("project")) {
+    return `**RELIEF.AI** is created by **ReliefAI** to solve "The Paralyzed Relief Supply Chain" during disasters.
 
 - **Live Platform:** [relief-ai-nu.vercel.app](https://relief-ai-nu.vercel.app/)
 - **Repository:** [github.com/shubhamrajjak-sys/Relief_AI](https://github.com/shubhamrajjak-sys/Relief_AI)
@@ -139,6 +139,7 @@ export const Route = createFileRoute("/api/chat")({
           "AIzaSyCh8aeIfTIS4qR9StSJAdG-YDb9sj0Gaew";
 
         const legacyApiKey =
+          process.env["RELIEFAI_API_KEY"] ||
           process.env["SHUBHAM_API_KEY"] ||
           process.env["LOVABLE_API_KEY"] ||
           process.env["OPENAI_API_KEY"];

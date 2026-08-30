@@ -153,7 +153,7 @@ The RELIEF.AI Emergency Route Assistant is powered by **Google Gemini AI** with 
 
 ## 👨‍💻 Author & Attribution
 
-This project was built and maintained by **[Shubham](https://github.com/shubhamrajjak-sys)** with Gemini, Vercel, and modern Web AI.
+This project was built and maintained by **[ReliefAI](https://github.com/shubhamrajjak-sys/Relief_AI)** with Gemini, Vercel, and modern Web AI.
 
 ## Development
 

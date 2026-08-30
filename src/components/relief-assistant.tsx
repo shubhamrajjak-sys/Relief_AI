@@ -36,7 +36,7 @@ const QUICK_ACTIONS = [
   { icon: Construction, label: "Bridge Risk", query: "What is the risk status of the affected bridge and can heavy vehicles cross?" },
 ];
 
-const SYSTEM_PROMPT = `You are Relief.AI, an AI Emergency Relief & Route Intelligence Assistant developed by Shubham.
+const SYSTEM_PROMPT = `You are Relief.AI, an AI Emergency Relief & Route Intelligence Assistant developed by ReliefAI.
 Your purpose is to help emergency logistics teams understand disaster-affected road networks and make safer relief-routing decisions.
 You analyze satellite observations, flood-affected areas, road accessibility, damaged bridges, blocked roads, relief vehicle locations, shelters, warehouses, and cargo priority.
 Provide actionable, detailed, and compassionate disaster relief advice in clean markdown.`;
@@ -128,10 +128,10 @@ Conventional navigation systems rely on pre-disaster static maps and lack live f
 - Road accessibility status updated across all 28 network links in the valley.`;
   }
 
-  if (q.includes("shubham") || q.includes("author") || q.includes("creator") || q.includes("who made") || q.includes("about") || q.includes("project")) {
+  if (q.includes("who") || q.includes("reliefai") || q.includes("relief.ai") || q.includes("author") || q.includes("creator") || q.includes("who made") || q.includes("about") || q.includes("project") || q.includes("shubham")) {
     return `### ℹ️ About RELIEF.AI
 
-**RELIEF.AI** was conceived and built by **[Shubham](https://github.com/shubhamrajjak-sys)** to solve **"The Paralyzed Relief Supply Chain"** during natural disasters.
+**RELIEF.AI** was conceived and built by **[ReliefAI](https://github.com/shubhamrajjak-sys/Relief_AI)** to solve **"The Paralyzed Relief Supply Chain"** during natural disasters.
 
 **Key Ecosystem Links:**
 - 🌐 **Live Web Application:** [relief-ai-nu.vercel.app](https://relief-ai-nu.vercel.app/)
@@ -513,7 +513,7 @@ export function ReliefAssistant() {
             />
             <Button type="submit" size="icon" disabled={busy || input.trim().length === 0} aria-label="Send message"><ArrowUp /></Button>
           </form>
-          <p className="assistant-note">Emergency decision-support · Built by <a href="https://github.com/shubhamrajjak-sys/Relief_AI" target="_blank" rel="noreferrer" className="underline hover:text-white">Shubham</a> · Powered by Google Gemini</p>
+          <p className="assistant-note">Emergency decision-support · Built by <a href="https://github.com/shubhamrajjak-sys/Relief_AI" target="_blank" rel="noreferrer" className="underline hover:text-white">ReliefAI</a> · Powered by Google Gemini</p>
         </div>
       </section>
     </main>
