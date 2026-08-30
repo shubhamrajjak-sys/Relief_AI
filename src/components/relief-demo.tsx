@@ -447,7 +447,7 @@ export function ReliefDemo() {
                 <span>📍</span><b>Shelter Alpha</b>
               </button>
 
-              {showDisaster ? data.hazards.map((hazard) => (
+              {showDisaster ? geometry.hazards.map((hazard: Hazard) => (
                 <button key={hazard.id} type="button" className={`demo-hazard hazard-${hazard.tone}`} style={{ left: `${hazard.x}%`, top: `${hazard.y}%` }} onClick={() => setSelectedHazard(hazard)} aria-label={hazard.label}>
                   <i />
                 </button>
@@ -457,7 +457,7 @@ export function ReliefDemo() {
                 <div className={`demo-vehicle ${stalled ? "is-stalled" : ""}`} style={{ left: `${vehicle.x}%`, top: `${vehicle.y}%` }}>🚚</div>
               ) : null}
               {stalled ? (
-                <div className="demo-vehicle is-stalled" style={{ left: `${data.blocked.x}%`, top: `${data.blocked.y}%` }}>🚚</div>
+                <div className="demo-vehicle is-stalled" style={{ left: `${geometry.stop.x}%`, top: `${geometry.stop.y}%` }}>🚚</div>
               ) : null}
               {stage === "delivered" ? <div className="demo-delivered" style={{ left: `${SHELTER.x}%`, top: `${SHELTER.y}%` }}><CheckCircle2 /> DELIVERY REACHED</div> : null}
             </div>
