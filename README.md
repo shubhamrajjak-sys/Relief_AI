@@ -132,7 +132,7 @@ The final website should feel like an AI-powered emergency logistics platform ra
 
 This project was built with [Gemini][Versal][supabase].
 
-**Live app**: relief-ai-nu.vercel.app
+**Live app**: https://relief-ai-nu.vercel.app/  ,  http://localhost:8080/
 
 ## Development
 
