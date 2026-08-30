@@ -343,7 +343,7 @@ export function ReliefDemo() {
   useEffect(() => { reset(); }, [scenario, reset]);
 
   // vehicle on original route stops at the blockage
-  const blockedPos = useVehicle(originalRef, stage === "blocked", 2600, 0.52, () => {
+  const blockedPos = useVehicle(originalRef, stage === "blocked", 2600, geometry.stopFraction, () => {
     setStage("analyzing");
     ANALYSIS_STEPS.forEach((_, i) => later(() => setAnalysisStep(i), 500 * (i + 1)));
     later(() => setStage("rerouting"), 500 * (ANALYSIS_STEPS.length + 1));
