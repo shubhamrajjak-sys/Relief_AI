@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AiAssistantRouteImport } from './routes/ai-assistant'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as ApiPingtestRouteImport } from './routes/api/pingtest'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,44 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPingtestRoute = ApiPingtestRouteImport.update({
+  id: '/api/pingtest',
+  path: '/api/pingtest',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai-assistant': typeof AiAssistantRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/pingtest': typeof ApiPingtestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-assistant': typeof AiAssistantRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/pingtest': typeof ApiPingtestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ai-assistant': typeof AiAssistantRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/pingtest': typeof ApiPingtestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/ai-assistant' | '/api/chat'
+  fullPaths: '/' | '/ai-assistant' | '/api/chat' | '/api/pingtest'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/ai-assistant' | '/api/chat'
-  id: '__root__' | '/' | '/ai-assistant' | '/api/chat'
+  to: '/' | '/ai-assistant' | '/api/chat' | '/api/pingtest'
+  id: '__root__' | '/' | '/ai-assistant' | '/api/chat' | '/api/pingtest'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiAssistantRoute: typeof AiAssistantRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiPingtestRoute: typeof ApiPingtestRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/pingtest': {
+      id: '/api/pingtest'
+      path: '/api/pingtest'
+      fullPath: '/api/pingtest'
+      preLoaderRoute: typeof ApiPingtestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiAssistantRoute: AiAssistantRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiPingtestRoute: ApiPingtestRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
