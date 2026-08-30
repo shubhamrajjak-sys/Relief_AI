@@ -285,6 +285,41 @@ export function ReliefDemo() {
   const compareRef = useRef<HTMLDivElement>(null);
 
   const data = SCENARIOS[scenario];
+
+  // Road-network routing: Dijkstra over the authored road graph.
+  const geometry = useMemo(() => {
+    const blockedEdge = data.blockedEdge;
+    const originalNodes = shortestPath("W", "S", []);
+    const cutIndex = originalNodes.findIndex(
+      (id, index) => index > 0 && edgeId(originalNodes[index - 1] ?? id, id) === blockedEdge,
+    );
+    const index = cutIndex > 0 ? cutIndex : Math.max(1, originalNodes.length - 1);
+    const fromNode = originalNodes[index - 1] as string;
+    const toNode = originalNodes[index] as string;
+    const safeNodes = shortestPath(fromNode, "S", [blockedEdge]);
+    const stopFraction = pathLength(originalNodes.slice(0, index)) / (pathLength(originalNodes) || 1);
+    const stop = midpoint(fromNode, toNode);
+    const hazardAnchors = [midpoint(fromNode, toNode), node(fromNode), node(toNode)];
+    const tones: Hazard["tone"][] = [data.zoneTone as Hazard["tone"], "danger", "warning"];
+    return {
+      original: toPathD(originalNodes),
+      safe: toPathD(safeNodes.length ? safeNodes : [fromNode, "S"]),
+      blockedSegment: toPathD([fromNode, toNode]),
+      zone: zonePolygon(fromNode, toNode),
+      stopFraction: Math.min(0.98, Math.max(0.05, stopFraction)),
+      stop,
+      hazards: data.hazardLabels.map(([label, severity, impact], i) => ({
+        id: `${scenario}-${i}`,
+        label,
+        severity,
+        impact,
+        tone: tones[i] ?? "warning",
+        x: hazardAnchors[i]?.x ?? 50,
+        y: hazardAnchors[i]?.y ?? 50,
+      })) as Hazard[],
+    };
+  }, [data, scenario]);
+
   const clearTimers = useCallback(() => { timers.current.forEach(clearTimeout); timers.current = []; }, []);
   const later = useCallback((fn: () => void, ms: number) => { timers.current.push(window.setTimeout(fn, ms)); }, []);
 
