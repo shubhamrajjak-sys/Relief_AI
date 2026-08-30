@@ -130,9 +130,9 @@ Use a high-quality generated/vector-style illustration if possible. If image gen
 
 The final website should feel like an AI-powered emergency logistics platform rather than a generic disaster-management website.
 
-This project was built with [Lovable](https://lovable.dev).
+This project was built with [Gemini][Versal][supabase].
 
-**Live app**: https://reroute-relief-ai.lovable.app
+**Live app**: relief-ai-nu.vercel.app
 
 ## Development
 
