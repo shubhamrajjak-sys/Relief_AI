@@ -38,6 +38,7 @@ function SatelliteComparison() {
   const frameRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState(50);
   const [view, setView] = useState<"before" | "after" | "compare">("compare");
+  const [dragging, setDragging] = useState(false);
 
   function updatePosition(value: number) {
     const next = Math.max(2, Math.min(98, value));
@@ -74,9 +75,11 @@ function SatelliteComparison() {
 
       <div
         ref={frameRef}
-        className="comparison-frame"
+        className={`comparison-frame view-${view} ${dragging ? "is-dragging" : ""}`}
         onPointerMove={(event) => { if (event.buttons === 1) moveFromPointer(event.clientX); }}
-        onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); moveFromPointer(event.clientX); }}
+        onPointerDown={(event) => { setDragging(true); event.currentTarget.setPointerCapture(event.pointerId); moveFromPointer(event.clientX); }}
+        onPointerUp={(event) => { setDragging(false); event.currentTarget.releasePointerCapture(event.pointerId); }}
+        onPointerCancel={() => setDragging(false)}
       >
         <img src={satelliteAfter} alt="Simulated satellite view after flooding expands across roads and the central intersection" width={1536} height={1024} draggable={false} />
         <div className="before-layer"><img src={satelliteBefore} alt="Simulated satellite view of the same valley before flooding" width={1536} height={1024} draggable={false} /></div>
@@ -185,8 +188,9 @@ function WalkthroughControls({ state, variant }: { state: WalkthroughState; vari
 
 function RoutingMap({ state }: { state: WalkthroughState }) {
   const { stage, setStage, setPlaying } = state;
+  const routeStatus = stage === 0 ? "ROUTE MONITORING" : stage === 1 ? "HAZARD DETECTED" : stage === 2 ? "ROUTE BLOCKED — AI RE-ROUTING…" : "SAFE ROUTE FOUND — DELIVERY REACHED ✓";
   return (
-    <div className={`routing-map stage-${stage} ${stage >= 3 ? "is-active" : ""}`}>
+    <div className={`routing-map stage-${stage} ${stage >= 3 ? "is-active" : ""}`} data-route-status={routeStatus}>
       <svg viewBox="0 0 1000 500" role="img" aria-label="AI reroutes a relief vehicle away from a flooded road to a shelter">
         <path className="terrain-line terrain-a" d="M10 125C155 30 220 164 340 91s226-36 306 42 180 15 344-77" />
         <path className="terrain-line terrain-b" d="M-20 382c141-94 258-19 347-79s171-64 273-8 230 22 420-75" />
@@ -208,6 +212,8 @@ function RoutingMap({ state }: { state: WalkthroughState }) {
 
 
 export function SatelliteExperience() {
+  const pageRef = useRef<HTMLElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const walk = useWalkthrough();
@@ -218,8 +224,54 @@ export function SatelliteExperience() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    const page = pageRef.current;
+    if (!page) return;
+    const targets = page.querySelectorAll<HTMLElement>(".reveal-block, .satellite-product, .walkthrough-map, .routing-map");
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          (entry.target as HTMLElement).dataset["revealed"] = "true";
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.14, rootMargin: "0px 0px -7%" });
+    targets.forEach((target) => observer.observe(target));
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero || window.matchMedia("(pointer: coarse), (prefers-reduced-motion: reduce)").matches) return;
+    let frame = 0;
+    const update = (x: number, y: number) => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        hero.style.setProperty("--hero-bg-x", `${x * 8}px`);
+        hero.style.setProperty("--hero-bg-y", `${y * 6}px`);
+        hero.style.setProperty("--hero-content-x", `${x * -3}px`);
+        hero.style.setProperty("--hero-content-y", `${y * -2}px`);
+      });
+    };
+    const onPointerMove = (event: PointerEvent) => update((event.clientX / window.innerWidth) - .5, (event.clientY / window.innerHeight) - .5);
+    const onPointerLeave = () => update(0, 0);
+    const onScroll = () => {
+      const progress = Math.min(1, window.scrollY / Math.max(1, hero.offsetHeight));
+      hero.style.setProperty("--hero-scroll-y", `${progress * 8}px`);
+    };
+    hero.addEventListener("pointermove", onPointerMove, { passive: true });
+    hero.addEventListener("pointerleave", onPointerLeave);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.cancelAnimationFrame(frame);
+      hero.removeEventListener("pointermove", onPointerMove);
+      hero.removeEventListener("pointerleave", onPointerLeave);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+
   return (
-    <main className="satellite-page">
+    <main ref={pageRef} className="satellite-page">
       <header className={`site-header ${scrolled ? "is-scrolled" : ""}`}>
         <nav className="site-nav" aria-label="Primary navigation">
           <a className="wordmark" href="#top">RELIEF.AI</a>
@@ -234,12 +286,12 @@ export function SatelliteExperience() {
         </nav>
       </header>
 
-      <section id="top" className="scenic-hero">
+      <section ref={heroRef} id="top" className="scenic-hero">
         <img className="scenic-background" src={scenicLandscape} alt="Mountain river valley viewed through soft morning mist" width={1920} height={1080} />
         <div className="scenic-overlay" />
         <div className="hero-panel">
           <span className="eyebrow">Satellite emergency monitoring</span>
-          <h1>The Paralyzed<br /><span>Relief Supply Chain</span></h1>
+          <h1><span className="hero-title-line">The Paralyzed</span><span className="hero-title-line hero-title-accent">Relief Supply Chain</span></h1>
           <p>When floods transform roads in minutes, satellite intelligence reveals what conventional maps cannot.</p>
           <div className="hero-actions">
             <Button asChild size="lg"><a href="#satellite-monitor">Explore satellite monitor <ArrowRight /></a></Button>
