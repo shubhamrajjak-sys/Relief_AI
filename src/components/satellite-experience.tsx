@@ -103,10 +103,86 @@ function SatelliteComparison() {
   );
 }
 
-function RoutingMap() {
-  const [active, setActive] = useState(false);
+const walkthrough = [
+  { key: "quake", label: "Earthquake", title: "Earthquake strikes", copy: "Hillside debris flows destabilise arterial highways and rural feeder roads." },
+  { key: "flood", label: "Flood", title: "Tributaries overflow", copy: "Intersections submerge under fast-moving water and a bridge is flagged unsafe." },
+  { key: "gps", label: "GPS Failure", title: "Conventional GPS fails", copy: "Maps still route the convoy into the blocked corridor, so it is forced to turn back." },
+  { key: "ai", label: "AI Rerouting", title: "AI reroutes relief", copy: "Detected hazards are removed from the network and a safe corridor guides the convoy in." },
+] as const;
+
+function useWalkthrough() {
+  const [stage, setStage] = useState(0);
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    if (!playing) return;
+    const id = window.setTimeout(() => {
+      setStage((current) => {
+        if (current >= walkthrough.length - 1) { setPlaying(false); return current; }
+        return current + 1;
+      });
+    }, 3600);
+    return () => window.clearTimeout(id);
+  }, [playing, stage]);
+
+  return { stage, setStage, playing, setPlaying };
+}
+
+type WalkthroughState = ReturnType<typeof useWalkthrough>;
+
+function WalkthroughControls({ state, variant }: { state: WalkthroughState; variant: "hero" | "map" }) {
+  const { stage, setStage, playing, setPlaying } = state;
+  const step = walkthrough[stage];
+  const last = stage === walkthrough.length - 1;
+
   return (
-    <div className={`routing-map ${active ? "is-active" : ""}`}>
+    <div className={`walkthrough walkthrough-${variant}`} aria-label="Guided disaster walkthrough">
+      <div className="walkthrough-steps" role="tablist">
+        {walkthrough.map((item, index) => (
+          <button
+            key={item.key}
+            type="button"
+            role="tab"
+            aria-selected={index === stage}
+            className={`walkthrough-step ${index === stage ? "is-current" : ""} ${index < stage ? "is-done" : ""}`}
+            onClick={() => { setPlaying(false); setStage(index); }}
+          >
+            <i />
+            <span>{`0${index + 1}`}</span>
+            <b>{item.label}</b>
+          </button>
+        ))}
+      </div>
+      <div className="walkthrough-body">
+        <div className="walkthrough-copy" aria-live="polite">
+          <strong>{step.title}</strong>
+          <p>{step.copy}</p>
+        </div>
+        <div className="walkthrough-actions">
+          <Button variant="ghost" onClick={() => { setPlaying(false); setStage(Math.max(0, stage - 1)); }} disabled={stage === 0}>Back</Button>
+          <Button
+            onClick={() => {
+              if (last) { setStage(0); setPlaying(true); return; }
+              setPlaying(false);
+              setStage(stage + 1);
+            }}
+          >
+            {last ? <><RotateCcw /> Replay</> : <>Next <ArrowRight /></>}
+          </Button>
+          <Button variant="outline" onClick={() => setPlaying(!playing)} aria-label={playing ? "Pause walkthrough" : "Autoplay walkthrough"}>
+            {playing ? <Pause /> : <Play />}{playing ? "Pause" : "Autoplay"}
+          </Button>
+        </div>
+      </div>
+      <div className="walkthrough-progress" aria-hidden="true"><i style={{ width: `${((stage + 1) / walkthrough.length) * 100}%` }} /></div>
+    </div>
+  );
+}
+
+function RoutingMap({ state }: { state: WalkthroughState }) {
+  const { stage, setStage, setPlaying } = state;
+  return (
+    <div className={`routing-map stage-${stage} ${stage >= 3 ? "is-active" : ""}`}>
       <svg viewBox="0 0 1000 500" role="img" aria-label="AI reroutes a relief vehicle away from a flooded road to a shelter">
         <path className="terrain-line terrain-a" d="M10 125C155 30 220 164 340 91s226-36 306 42 180 15 344-77" />
         <path className="terrain-line terrain-b" d="M-20 382c141-94 258-19 347-79s171-64 273-8 230 22 420-75" />
@@ -116,14 +192,16 @@ function RoutingMap() {
         <path className="safe-route" d="M120 340C224 379 323 403 430 354s176-91 263-23 143-15 217-72" />
       </svg>
       <div className="map-node node-warehouse"><Warehouse /><span>Warehouse</span></div>
-      <div className="map-node node-hazard"><X /><span>Flooded road</span></div>
+      <div className="map-node node-hazard"><X /><span>{stage >= 1 ? "Flooded road" : "Damaged road"}</span></div>
       <div className="map-node node-shelter"><Check /><span>Relief shelter</span></div>
       <div className="route-truck"><Truck /></div>
+      <div className="stage-tag"><i />{`STEP 0${stage + 1} — ${walkthrough[stage].label.toUpperCase()}`}</div>
       <div className="route-key"><span><i className="blocked" /> Original route</span><span><i className="safe" /> AI alternative</span></div>
-      <Button className="recalculate-button" onClick={() => setActive(true)}><Navigation />{active ? "Route recalculated" : "Recalculate route"}</Button>
+      <Button className="recalculate-button" onClick={() => { setPlaying(false); setStage(3); }}><Navigation />{stage >= 3 ? "Route recalculated" : "Recalculate route"}</Button>
     </div>
   );
 }
+
 
 export function SatelliteExperience() {
   const [scrolled, setScrolled] = useState(false);
