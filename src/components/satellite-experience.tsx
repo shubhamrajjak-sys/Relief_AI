@@ -209,6 +209,7 @@ function RoutingMap({ state }: { state: WalkthroughState }) {
 export function SatelliteExperience() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const walk = useWalkthrough();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 48);
@@ -241,8 +242,9 @@ export function SatelliteExperience() {
           <p>When floods transform roads in minutes, satellite intelligence reveals what conventional maps cannot.</p>
           <div className="hero-actions">
             <Button asChild size="lg"><a href="#satellite-monitor">Explore satellite monitor <ArrowRight /></a></Button>
-            <Button asChild size="lg" variant="outline"><a href="#before-after">View before / after</a></Button>
+            <Button asChild size="lg" variant="outline"><a href="#ai-routing">View the walkthrough</a></Button>
           </div>
+          <WalkthroughControls state={walk} variant="hero" />
           <div className="live-status"><i /> Live monitoring simulation</div>
         </div>
         <a className="scroll-cue" href="#problem" aria-label="Scroll to the problem"><span>Discover</span><ArrowDown /></a>
@@ -268,7 +270,8 @@ export function SatelliteExperience() {
 
       <section id="ai-routing" className="routing-section">
         <div className="routing-copy reveal-block"><span className="eyebrow">AI routing</span><h2>A safer path appears.</h2><p>The detected flood removes the failed corridor. The route engine redirects relief around the hazard and toward the shelter.</p></div>
-        <RoutingMap />
+        <WalkthroughControls state={walk} variant="map" />
+        <RoutingMap state={walk} />
       </section>
 
       <section className="delivery-section reveal-block">
