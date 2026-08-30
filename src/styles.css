@@ -308,6 +308,8 @@ footer { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center
 .zone-danger { fill: rgb(201 77 65 / 35%); stroke: rgb(240 120 105 / 85%); stroke-width: .4; }
 .zone-warning { fill: rgb(230 150 60 / 32%); stroke: rgb(245 185 110 / 85%); stroke-width: .4; }
 .zone-dark { fill: rgb(20 20 24 / 40%); stroke: rgb(200 200 210 / 60%); stroke-width: .4; }
+.road-line { fill: none; stroke: rgb(240 240 235 / 26%); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.road-network { filter: drop-shadow(0 0 2px rgb(0 0 0 / 45%)); }
 .route { fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 .route-original { stroke: rgb(255 255 255 / 80%); stroke-width: 3; transition: stroke .5s, opacity .5s; }
 .route-original.is-unsafe { stroke: #e0705f; stroke-dasharray: 6 5; }
