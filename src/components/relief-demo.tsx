@@ -80,51 +80,61 @@ const EDGES: [string, string][] = [
   ["C", "V2"], ["E", "V4"],
 ];
 
-const WAREHOUSE = NODES.W;
-const SHELTER = NODES.S;
+const node = (id: string): Node => NODES[id] ?? { x: 0, y: 0 };
+
+const WAREHOUSE = node("W");
+const SHELTER = node("S");
 
 const edgeId = (a: string, b: string) => [a, b].sort().join("-");
 const dist = (a: Node, b: Node) => Math.hypot(a.x - b.x, a.y - b.y);
 
 function shortestPath(from: string, to: string, blocked: string[]): string[] {
   const visited = new Set<string>();
-  const cost: Record<string, number> = { [from]: 0 };
-  const prev: Record<string, string> = {};
-  while (true) {
+  const cost = new Map<string, number>([[from, 0]]);
+  const prev = new Map<string, string>();
+  for (;;) {
     let current: string | null = null;
-    for (const key of Object.keys(cost)) {
-      if (visited.has(key)) continue;
-      if (current === null || cost[key] < cost[current]) current = key;
+    let best = Infinity;
+    for (const [key, value] of cost) {
+      if (visited.has(key) || value >= best) continue;
+      current = key;
+      best = value;
     }
-    if (current === null) break;
-    if (current === to) break;
+    if (current === null || current === to) break;
     visited.add(current);
     for (const [a, b] of EDGES) {
       if (a !== current && b !== current) continue;
       const next = a === current ? b : a;
       if (blocked.includes(edgeId(a, b))) continue;
-      const candidate = cost[current] + dist(NODES[current], NODES[next]);
-      if (cost[next] === undefined || candidate < cost[next]) {
-        cost[next] = candidate;
-        prev[next] = current;
+      const candidate = best + dist(node(current), node(next));
+      if (candidate < (cost.get(next) ?? Infinity)) {
+        cost.set(next, candidate);
+        prev.set(next, current);
       }
     }
   }
-  if (to !== from && prev[to] === undefined) return [];
+  if (to !== from && !prev.has(to)) return [];
   const path = [to];
-  while (path[0] !== from) path.unshift(prev[path[0]]);
+  for (;;) {
+    const head = path[0] as string;
+    if (head === from) break;
+    const before = prev.get(head);
+    if (!before) return [];
+    path.unshift(before);
+  }
   return path;
 }
 
 const toPathD = (nodes: string[]) =>
-  nodes.map((id, index) => `${index === 0 ? "M" : "L"}${NODES[id].x} ${NODES[id].y}`).join(" ");
+  nodes.map((id, index) => `${index === 0 ? "M" : "L"}${node(id).x} ${node(id).y}`).join(" ");
 
 const pathLength = (nodes: string[]) =>
-  nodes.reduce((sum, id, index) => (index === 0 ? 0 : sum + dist(NODES[nodes[index - 1]], NODES[id])), 0);
+  nodes.reduce((sum, id, index) => (index === 0 ? 0 : sum + dist(node(nodes[index - 1] ?? id), node(id))), 0);
 
 function midpoint(a: string, b: string) {
-  return { x: (NODES[a].x + NODES[b].x) / 2, y: (NODES[a].y + NODES[b].y) / 2 };
+  return { x: (node(a).x + node(b).x) / 2, y: (node(a).y + node(b).y) / 2 };
 }
+
 
 function zonePolygon(a: string, b: string, radius = 11) {
   const center = midpoint(a, b);
