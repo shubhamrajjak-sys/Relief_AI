@@ -108,6 +108,7 @@ export const Route = createFileRoute("/api/chat")({
           return Response.json({ error: "unavailable" }, { status: 502 });
         }
 
+        console.error("upstream status", upstream.status, !!upstream.body);
         if (!upstream.ok || !upstream.body) {
           const detail = await upstream.text().catch(() => "");
           console.error("relief-assistant gateway error", upstream.status, detail);
