@@ -1,18 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { CommandCenter } from "@/components/command-center";
+import { SatelliteExperience } from "@/components/satellite-experience";
 
 export const Route = createFileRoute("/")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "RELIEF.AI | Emergency Logistics Digital Twin" },
-      { name: "description", content: "A live 3D digital twin that detects disaster hazards and reroutes critical relief convoys through safe roads." },
-      { property: "og:title", content: "RELIEF.AI | Emergency Logistics Digital Twin" },
-      { property: "og:description", content: "See AI detect floods, unsafe bridges, and damaged roads before rerouting critical relief supplies." },
+      { title: "RELIEF.AI | Satellite Flood Monitoring" },
+      { name: "description", content: "Compare satellite views before and after flooding, detect inaccessible roads, and reroute critical relief supplies." },
+      { property: "og:title", content: "RELIEF.AI | Satellite Flood Monitoring" },
+      { property: "og:description", content: "See satellite change detection identify flooded roads and guide safer relief routes." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: CommandCenter,
+  component: SatelliteExperience,
 });
