@@ -6,6 +6,9 @@ import {
   ChevronsLeftRight,
   Menu,
   Navigation,
+  Pause,
+  Play,
+  RotateCcw,
   Satellite,
   Truck,
   Warehouse,
@@ -132,7 +135,7 @@ type WalkthroughState = ReturnType<typeof useWalkthrough>;
 
 function WalkthroughControls({ state, variant }: { state: WalkthroughState; variant: "hero" | "map" }) {
   const { stage, setStage, playing, setPlaying } = state;
-  const step = walkthrough[stage];
+  const step = walkthrough[stage] ?? walkthrough[0];
   const last = stage === walkthrough.length - 1;
 
   return (
@@ -195,7 +198,7 @@ function RoutingMap({ state }: { state: WalkthroughState }) {
       <div className="map-node node-hazard"><X /><span>{stage >= 1 ? "Flooded road" : "Damaged road"}</span></div>
       <div className="map-node node-shelter"><Check /><span>Relief shelter</span></div>
       <div className="route-truck"><Truck /></div>
-      <div className="stage-tag"><i />{`STEP 0${stage + 1} — ${walkthrough[stage].label.toUpperCase()}`}</div>
+      <div className="stage-tag"><i />{`STEP 0${stage + 1} — ${(walkthrough[stage] ?? walkthrough[0]).label.toUpperCase()}`}</div>
       <div className="route-key"><span><i className="blocked" /> Original route</span><span><i className="safe" /> AI alternative</span></div>
       <Button className="recalculate-button" onClick={() => { setPlaying(false); setStage(3); }}><Navigation />{stage >= 3 ? "Route recalculated" : "Recalculate route"}</Button>
     </div>
