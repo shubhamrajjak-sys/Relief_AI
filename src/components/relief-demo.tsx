@@ -428,11 +428,17 @@ export function ReliefDemo() {
             <div className="demo-map-inner" style={{ transform: `scale(${zoom})` }}>
               <img src={demoMap} alt="Satellite view of the simulated relief operation area" loading="lazy" width={1600} height={1104} />
               <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="demo-layer" aria-hidden="true">
-                {showDisaster && data.zone ? <path d={data.zone} className={`zone zone-${data.zoneTone}`} /> : null}
-                <path ref={originalRef} d={data.original} className={`route route-original ${showDisaster ? "is-unsafe" : ""} ${showSafe ? "is-retired" : ""}`} />
-                {showDisaster ? <path d={data.blocked.d} className="route route-blocked" /> : null}
-                <path ref={safeRef} d={data.safe} className={`route route-safe ${showSafe ? "is-drawn" : ""}`} />
+                <g className="road-network">
+                  {EDGES.map(([a, b]) => (
+                    <path key={edgeId(a, b)} d={toPathD([a, b])} className="road-line" />
+                  ))}
+                </g>
+                {showDisaster ? <path d={geometry.zone} className={`zone zone-${data.zoneTone}`} /> : null}
+                <path ref={originalRef} d={geometry.original} className={`route route-original ${showDisaster ? "is-unsafe" : ""} ${showSafe ? "is-retired" : ""}`} />
+                {showDisaster ? <path d={geometry.blockedSegment} className="route route-blocked" /> : null}
+                <path ref={safeRef} d={geometry.safe} className={`route route-safe ${showSafe ? "is-drawn" : ""}`} />
               </svg>
+
 
               <button type="button" className="demo-pin pin-warehouse" style={{ left: `${WAREHOUSE.x}%`, top: `${WAREHOUSE.y}%` }} onClick={() => setSelectedHazard({ id: "wh", label: "Relief warehouse", x: WAREHOUSE.x, y: WAREHOUSE.y, tone: "warning", severity: "STAGING", impact: "DISPATCH POINT" })}>
                 <span>📦</span><b>Warehouse</b>
