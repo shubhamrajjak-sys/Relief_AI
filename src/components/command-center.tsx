@@ -3,7 +3,7 @@ import {
   Activity,
   ArrowRight,
   Boxes,
-  Bridge,
+  Construction,
   CircleAlert,
   CloudRain,
   Crosshair,
@@ -41,7 +41,7 @@ const timeline = [
 const problemCards = [
   { number: "01", title: "Damaged roads", copy: "Earthquake and landslides make arterial and rural roads unsafe.", icon: RouteIcon },
   { number: "02", title: "Flooded intersections", copy: "Fast-moving water changes road accessibility in real time.", icon: Waves },
-  { number: "03", title: "Unsafe bridges", copy: "Structural damage prevents heavy relief vehicles from crossing.", icon: Bridge },
+  { number: "03", title: "Unsafe bridges", copy: "Structural damage prevents heavy relief vehicles from crossing.", icon: Construction },
   { number: "04", title: "Stranded convoys", copy: "Conventional GPS continues routing vehicles toward hazards.", icon: Truck },
 ];
 
