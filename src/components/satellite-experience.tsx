@@ -172,7 +172,7 @@ function WalkthroughControls({ state, variant }: { state: WalkthroughState; vari
           >
             {last ? <><RotateCcw /> Replay</> : <>Next <ArrowRight /></>}
           </Button>
-          <Button variant="outline" onClick={() => setPlaying(!playing)} aria-label={playing ? "Pause walkthrough" : "Autoplay walkthrough"}>
+          <Button variant="outline" className="walkthrough-ghost" onClick={() => setPlaying(!playing)} aria-label={playing ? "Pause walkthrough" : "Autoplay walkthrough"}>
             {playing ? <Pause /> : <Play />}{playing ? "Pause" : "Autoplay"}
           </Button>
         </div>
