@@ -339,7 +339,18 @@ export function SatelliteExperience() {
         <Button asChild size="lg"><a href="#satellite-monitor">Replay comparison <ArrowRight /></a></Button>
       </section>
 
-      <footer><a className="wordmark" href="#top">RELIEF.AI</a><span>Satellite-based flood & road accessibility monitoring</span><a href="#top">Back to top ↑</a></footer>
+      <footer className="site-footer">
+        <div className="footer-left">
+          <a className="wordmark" href="#top">RELIEF.AI</a>
+          <span>Satellite flood monitoring & emergency routing · Built by <a href="https://github.com/shubhamrajjak-sys/Relief_AI" target="_blank" rel="noreferrer" className="underline">Shubham</a></span>
+        </div>
+        <div className="footer-links">
+          <a href="https://relief-ai-nu.vercel.app/" target="_blank" rel="noreferrer">Live App</a>
+          <a href="https://github.com/shubhamrajjak-sys/Relief_AI" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="https://vercel.com/shubhamrajjak-sys-projects/relief-ai" target="_blank" rel="noreferrer">Vercel</a>
+        </div>
+        <a href="#top">Back to top ↑</a>
+      </footer>
     </main>
   );
 }

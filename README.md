@@ -130,17 +130,39 @@ Use a high-quality generated/vector-style illustration if possible. If image gen
 
 The final website should feel like an AI-powered emergency logistics platform rather than a generic disaster-management website.
 
-This project was built with [Gemini][Versal][supabase].
+## 🔗 Project Links
 
-**Live app**: https://relief-ai-nu.vercel.app/  ,  http://localhost:8080/
+- 🌐 **Live Deployment**: [https://relief-ai-nu.vercel.app/](https://relief-ai-nu.vercel.app/)
+- 💻 **GitHub Repository**: [https://github.com/shubhamrajjak-sys/Relief_AI](https://github.com/shubhamrajjak-sys/Relief_AI)
+- ⚡ **Vercel Dashboard**: [https://vercel.com/shubhamrajjak-sys-projects/relief-ai](https://vercel.com/shubhamrajjak-sys-projects/relief-ai)
+
+---
+
+## 🤖 AI Chatbot & Gemini API Configuration
+
+The RELIEF.AI Emergency Route Assistant is powered by **Google Gemini AI** with real-time streaming and intelligent domain fallback.
+
+### Adding Gemini API Key on Vercel:
+1. Go to your [Vercel Project Environment Variables](https://vercel.com/shubhamrajjak-sys-projects/relief-ai/settings/environment-variables).
+2. Add a new variable:
+   - **Key**: `GEMINI_API_KEY`
+   - **Value**: `Your_Google_Gemini_API_Key`
+3. Click **Save** and trigger a **Redeploy**.
+
+---
+
+## 👨‍💻 Author & Attribution
+
+This project was built and maintained by **[Shubham](https://github.com/shubhamrajjak-sys)** with Gemini, Vercel, and modern Web AI.
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Prefer working locally? You need Node.js and npm:
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+git clone https://github.com/shubhamrajjak-sys/Relief_AI.git
+cd Relief_AI
+npm install
 npm run dev
 ```
+
