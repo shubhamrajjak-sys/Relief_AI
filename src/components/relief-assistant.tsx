@@ -4,7 +4,7 @@ import {
   ArrowLeft,
   ArrowUp,
   Bot,
-  Bridge,
+  Construction,
   Droplets,
   Plus,
   Route as RouteIcon,
@@ -32,7 +32,7 @@ const QUICK_ACTIONS = [
   { icon: Droplets, label: "Flood Impact", query: "Summarise the flood impact on the road network in the monitored valley." },
   { icon: RouteIcon, label: "Check Route", query: "Check the current relief route from the warehouse to the shelter and flag any hazards." },
   { icon: Truck, label: "Relief Priority", query: "Which relief cargo should be prioritised on the next convoy, and why?" },
-  { icon: Bridge, label: "Bridge Risk", query: "What is the risk status of the affected bridge and can heavy vehicles cross?" },
+  { icon: Construction, label: "Bridge Risk", query: "What is the risk status of the affected bridge and can heavy vehicles cross?" },
 ];
 
 const DEMO_REPLIES: { match: RegExp; reply: string }[] = [
