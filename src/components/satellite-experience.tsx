@@ -283,10 +283,10 @@ export function SatelliteExperience() {
             <a href="#before-after" onClick={() => setMenuOpen(false)}>Before / After</a>
             <a href="#ai-routing" onClick={() => setMenuOpen(false)}>AI Routing</a>
             <Link to="/ai-assistant" className="nav-assistant" onClick={() => setMenuOpen(false)}><Sparkles /> AI Coach</Link>
-            <a className="mobile-launch" href="#satellite-monitor" onClick={() => setMenuOpen(false)}>Launch demo <ArrowRight /></a>
+            <Link className="mobile-launch" to="/demo" onClick={() => setMenuOpen(false)}>Launch demo <ArrowRight /></Link>
           </div>
 
-          <div className="nav-action"><Button asChild className="launch-demo"><a href="#satellite-monitor">Launch demo <ArrowRight /></a></Button></div>
+          <div className="nav-action"><Button asChild className="launch-demo"><Link to="/demo">Launch demo <ArrowRight /></Link></Button></div>
           <Button variant="ghost" size="icon" className="menu-button" onClick={() => setMenuOpen((open) => !open)} aria-label={menuOpen ? "Close menu" : "Open menu"}>{menuOpen ? <X /> : <Menu />}</Button>
         </nav>
       </header>
