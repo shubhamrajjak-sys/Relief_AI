@@ -125,7 +125,8 @@ export const Route = createFileRoute("/api/chat")({
           try {
             for (;;) {
               const { done, value } = await reader.read();
-              if (done) break;
+              if (done) { console.error("stream done"); break; }
+              console.error("chunk", value.byteLength);
               buffer += decoder.decode(value, { stream: true });
               const lines = buffer.split("\n");
               buffer = lines.pop() ?? "";
