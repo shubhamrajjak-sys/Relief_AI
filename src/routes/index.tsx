@@ -3,12 +3,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CommandCenter } from "@/components/command-center";
 
 export const Route = createFileRoute("/")({
+  ssr: false,
   head: () => ({
     meta: [
-      { title: "RouteLifeline | AI Emergency Logistics" },
-      { name: "description", content: "Live, AI-powered routing for critical relief convoys when roads, bridges, and conventional navigation fail." },
-      { property: "og:title", content: "RouteLifeline | AI Emergency Logistics" },
-      { property: "og:description", content: "A live command center for safe, dynamic disaster relief routing." },
+      { title: "RELIEF.AI | Emergency Logistics Digital Twin" },
+      { name: "description", content: "A live 3D digital twin that detects disaster hazards and reroutes critical relief convoys through safe roads." },
+      { property: "og:title", content: "RELIEF.AI | Emergency Logistics Digital Twin" },
+      { property: "og:description", content: "See AI detect floods, unsafe bridges, and damaged roads before rerouting critical relief supplies." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
