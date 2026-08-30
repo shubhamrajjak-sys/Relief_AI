@@ -39,19 +39,101 @@ type Scenario = {
   emoji: string;
   detected: string;
   hazardLabel: string;
-  zone: string;
   zoneTone: string;
-  hazards: Hazard[];
-  blocked: { d: string; x: number; y: number };
-  original: string;
-  safe: string;
+  blockedEdge: string;
+  hazardLabels: [string, string, string][];
   roads: [string, string][];
   stats: [string, string][];
   recommendation: string;
 };
 
-const WAREHOUSE = { x: 11, y: 80 };
-const SHELTER = { x: 88, y: 17 };
+/**
+ * Manually authored road network aligned with the demo satellite base map.
+ * Coordinates are normalized to the 0-100 SVG viewBox so the overlay always
+ * shares the exact coordinate system of the map image at any size.
+ */
+type Node = { x: number; y: number };
+
+const NODES: Record<string, Node> = {
+  W: { x: 11, y: 80 }, // warehouse
+  A: { x: 22, y: 74 },
+  B: { x: 34, y: 67 }, // intersection
+  C: { x: 45, y: 60 }, // intersection
+  D: { x: 58, y: 46 }, // intersection
+  E: { x: 72, y: 32 },
+  S: { x: 88, y: 17 }, // shelter
+  N1: { x: 19, y: 60 },
+  N2: { x: 29, y: 43 }, // north intersection
+  N3: { x: 47, y: 31 },
+  N4: { x: 66, y: 21 }, // north intersection
+  V1: { x: 26, y: 88 },
+  V2: { x: 47, y: 84 }, // south intersection
+  V3: { x: 66, y: 69 },
+  V4: { x: 79, y: 45 }, // south intersection
+};
+
+const EDGES: [string, string][] = [
+  ["W", "A"], ["A", "B"], ["B", "C"], ["C", "D"], ["D", "E"], ["E", "S"],
+  ["W", "N1"], ["N1", "N2"], ["N2", "N3"], ["N3", "N4"], ["N4", "S"],
+  ["B", "N2"], ["D", "N4"],
+  ["W", "V1"], ["V1", "V2"], ["V2", "V3"], ["V3", "V4"], ["V4", "S"],
+  ["C", "V2"], ["E", "V4"],
+];
+
+const WAREHOUSE = NODES.W;
+const SHELTER = NODES.S;
+
+const edgeId = (a: string, b: string) => [a, b].sort().join("-");
+const dist = (a: Node, b: Node) => Math.hypot(a.x - b.x, a.y - b.y);
+
+function shortestPath(from: string, to: string, blocked: string[]): string[] {
+  const visited = new Set<string>();
+  const cost: Record<string, number> = { [from]: 0 };
+  const prev: Record<string, string> = {};
+  while (true) {
+    let current: string | null = null;
+    for (const key of Object.keys(cost)) {
+      if (visited.has(key)) continue;
+      if (current === null || cost[key] < cost[current]) current = key;
+    }
+    if (current === null) break;
+    if (current === to) break;
+    visited.add(current);
+    for (const [a, b] of EDGES) {
+      if (a !== current && b !== current) continue;
+      const next = a === current ? b : a;
+      if (blocked.includes(edgeId(a, b))) continue;
+      const candidate = cost[current] + dist(NODES[current], NODES[next]);
+      if (cost[next] === undefined || candidate < cost[next]) {
+        cost[next] = candidate;
+        prev[next] = current;
+      }
+    }
+  }
+  if (to !== from && prev[to] === undefined) return [];
+  const path = [to];
+  while (path[0] !== from) path.unshift(prev[path[0]]);
+  return path;
+}
+
+const toPathD = (nodes: string[]) =>
+  nodes.map((id, index) => `${index === 0 ? "M" : "L"}${NODES[id].x} ${NODES[id].y}`).join(" ");
+
+const pathLength = (nodes: string[]) =>
+  nodes.reduce((sum, id, index) => (index === 0 ? 0 : sum + dist(NODES[nodes[index - 1]], NODES[id])), 0);
+
+function midpoint(a: string, b: string) {
+  return { x: (NODES[a].x + NODES[b].x) / 2, y: (NODES[a].y + NODES[b].y) / 2 };
+}
+
+function zonePolygon(a: string, b: string, radius = 11) {
+  const center = midpoint(a, b);
+  const points = Array.from({ length: 6 }, (_, i) => {
+    const angle = (Math.PI / 3) * i + 0.4;
+    return `${(center.x + Math.cos(angle) * radius * 1.15).toFixed(1)} ${(center.y + Math.sin(angle) * radius).toFixed(1)}`;
+  });
+  return `M${points.join(" L")} Z`;
+}
 
 const SCENARIOS: Record<ScenarioKey, Scenario> = {
   flood: {
@@ -59,92 +141,84 @@ const SCENARIOS: Record<ScenarioKey, Scenario> = {
     emoji: "🌊",
     detected: "FLOOD DETECTED",
     hazardLabel: "Flood",
-    zone: "M38 42 L62 34 L74 46 L70 64 L48 70 L34 60 Z",
     zoneTone: "water",
-    hazards: [
-      { id: "f1", label: "Flood zone", x: 53, y: 52, tone: "water", severity: "HIGH", impact: "BLOCKED" },
-      { id: "f2", label: "Submerged intersection", x: 40, y: 63, tone: "danger", severity: "HIGH", impact: "BLOCKED" },
-      { id: "f3", label: "Rising water margin", x: 70, y: 44, tone: "warning", severity: "MODERATE", impact: "RESTRICTED" },
+    blockedEdge: edgeId("C", "D"),
+    hazardLabels: [
+      ["Flooded road segment", "HIGH", "BLOCKED"],
+      ["Submerged intersection", "HIGH", "BLOCKED"],
+      ["Rising water margin", "MODERATE", "RESTRICTED"],
     ],
-    blocked: { d: "M44 60 L58 46", x: 51, y: 53 },
-    original: "M11 80 L26 72 L36 66 L44 60 L58 46 L72 32 L88 17",
-    safe: "M11 80 L18 62 L26 44 L42 30 L60 22 L74 15 L88 17",
     roads: [
-      ["NH-27 (demo)", "BLOCKED"],
+      ["NH-27 segment C–D (demo)", "BLOCKED"],
       ["Rural link RL-4 (demo)", "SUBMERGED"],
       ["River bridge S7 (demo)", "UNSAFE"],
       ["Ridge pass RP-2 (demo)", "OPEN"],
     ],
     stats: [["Affected roads", "7"], ["Unsafe bridges", "2"], ["Safe routes", "3"]],
-    recommendation: "Northern ridge corridor avoids the flood basin.",
+    recommendation: "Northern ridge corridor rejoins NH-27 past the flood basin.",
   },
   landslide: {
     label: "Landslide",
     emoji: "🏔",
     detected: "LANDSLIDE DETECTED",
     hazardLabel: "Landslide",
-    zone: "M18 46 L34 36 L44 46 L38 60 L22 62 Z",
     zoneTone: "purple",
-    hazards: [
-      { id: "l1", label: "Landslide zone", x: 30, y: 48, tone: "purple", severity: "HIGH", impact: "BLOCKED" },
-      { id: "l2", label: "Slope instability", x: 22, y: 60, tone: "warning", severity: "MODERATE", impact: "RESTRICTED" },
+    blockedEdge: edgeId("B", "C"),
+    hazardLabels: [
+      ["Landslide over road", "HIGH", "BLOCKED"],
+      ["Slope instability", "MODERATE", "RESTRICTED"],
+      ["Debris runout", "MODERATE", "RESTRICTED"],
     ],
-    blocked: { d: "M26 60 L34 46", x: 30, y: 53 },
-    original: "M11 80 L18 70 L26 60 L34 46 L52 34 L70 26 L88 17",
-    safe: "M11 80 L28 86 L50 80 L66 62 L78 38 L88 17",
     roads: [
-      ["Hill road HR-9 (demo)", "BLOCKED"],
+      ["Hill road HR-9 segment B–C (demo)", "BLOCKED"],
       ["Mountain spur MS-3 (demo)", "UNSAFE"],
       ["Valley bypass VB-1 (demo)", "OPEN"],
     ],
     stats: [["Affected roads", "4"], ["Unsafe slopes", "3"], ["Safe routes", "2"]],
-    recommendation: "Lower valley bypass avoids the unstable slope.",
+    recommendation: "Ridge connector B–N2 bypasses the unstable slope on existing roads.",
   },
   blockage: {
     label: "Road blockage",
     emoji: "🛣",
     detected: "ROAD BLOCKAGE DETECTED",
     hazardLabel: "Road blockage",
-    zone: "",
     zoneTone: "danger",
-    hazards: [
-      { id: "b1", label: "Debris blockage", x: 62, y: 40, tone: "danger", severity: "HIGH", impact: "BLOCKED" },
-      { id: "b2", label: "Congestion build-up", x: 48, y: 52, tone: "warning", severity: "MODERATE", impact: "SLOW" },
+    blockedEdge: edgeId("D", "E"),
+    hazardLabels: [
+      ["Debris blockage on carriageway", "HIGH", "BLOCKED"],
+      ["Congestion build-up", "MODERATE", "SLOW"],
+      ["Damaged shoulder", "MODERATE", "RESTRICTED"],
     ],
-    blocked: { d: "M56 46 L68 34", x: 62, y: 40 },
-    original: "M11 80 L26 72 L40 60 L56 46 L68 34 L88 17",
-    safe: "M11 80 L30 74 L48 66 L64 56 L78 36 L88 17",
     roads: [
-      ["NH-27 segment 4 (demo)", "BLOCKED"],
+      ["NH-27 segment D–E (demo)", "BLOCKED"],
       ["Service road SR-2 (demo)", "OPEN"],
       ["Town link TL-6 (demo)", "OPEN"],
     ],
     stats: [["Affected roads", "3"], ["Unsafe bridges", "0"], ["Safe routes", "4"]],
-    recommendation: "Service road detour restores access to the shelter.",
+    recommendation: "Service road D–N4 detour restores road access to the shelter.",
   },
   bridge: {
     label: "Bridge failure",
     emoji: "🌉",
     detected: "BRIDGE FAILURE DETECTED",
     hazardLabel: "Bridge failure",
-    zone: "",
     zoneTone: "dark",
-    hazards: [
-      { id: "br1", label: "Bridge S7", x: 52, y: 45, tone: "dark", severity: "CRITICAL", impact: "UNSAFE FOR HEAVY VEHICLES" },
-      { id: "br2", label: "Approach ramp", x: 44, y: 55, tone: "warning", severity: "MODERATE", impact: "RESTRICTED" },
+    blockedEdge: edgeId("E", "S"),
+    hazardLabels: [
+      ["Bridge S7 on E–S link", "CRITICAL", "UNSAFE FOR HEAVY VEHICLES"],
+      ["Approach ramp", "MODERATE", "RESTRICTED"],
+      ["Scoured abutment", "MODERATE", "RESTRICTED"],
     ],
-    blocked: { d: "M46 54 L58 40", x: 52, y: 46 },
-    original: "M11 80 L26 72 L38 62 L46 54 L58 40 L72 30 L88 17",
-    safe: "M11 80 L20 60 L32 42 L50 28 L68 20 L88 17",
     roads: [
       ["River bridge S7 (demo)", "UNSAFE"],
       ["North crossing NC-1 (demo)", "OPEN"],
       ["NH-27 (demo)", "OPEN"],
     ],
     stats: [["Affected roads", "2"], ["Unsafe bridges", "1"], ["Safe routes", "2"]],
-    recommendation: "North crossing supports heavy relief vehicles.",
+    recommendation: "North crossing N4–S carries heavy relief vehicles to the shelter.",
   },
 };
+
 
 const ANALYSIS_STEPS = ["SCANNING HAZARDS", "CHECKING ROAD ACCESS", "ANALYZING ALTERNATIVES", "CALCULATING SAFE ROUTE", "ROUTE FOUND ✓"];
 const UPLOAD_STEPS = ["IMAGE RECEIVED ✓", "DETECTING ROADS", "IDENTIFYING HAZARDS", "ANALYZING BLOCKAGES", "CALCULATING ROUTES", "SAFE PATH GENERATED ✓"];
