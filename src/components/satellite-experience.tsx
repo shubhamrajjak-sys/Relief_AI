@@ -164,6 +164,7 @@ function WalkthroughControls({ state, variant }: { state: WalkthroughState; vari
         <div className="walkthrough-actions">
           <Button variant="ghost" onClick={() => { setPlaying(false); setStage(Math.max(0, stage - 1)); }} disabled={stage === 0}>Back</Button>
           <Button
+            className="walkthrough-primary"
             onClick={() => {
               if (last) { setStage(0); setPlaying(true); return; }
               setPlaying(false);
