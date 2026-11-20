@@ -6,7 +6,7 @@ Update the current website hero section and replace the existing decorative pain
 
 PROBLEM TITLE:
 
-"The Paralyzed Relief Supply Chain"
+"The Paralyzed Relief Supply Chain"   
 
 
 
